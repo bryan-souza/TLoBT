@@ -88,9 +88,7 @@ def get_game_variables(constants):
     player.equipment.toggle_equip(adaga)
 
     game_map = GameMap(constants['MAP_WIDTH'], constants['MAP_HEIGHT'])
-    make_map(game_map, constants['MAX_ROOMS'], constants['ROOM_MIN_SIZE'],
-             constants['ROOM_MAX_SIZE'], constants['MAP_WIDTH'],
-             constants['MAP_HEIGHT'], player, entities)
+    make_bsp(game_map, player, entities)
 
     message_log = MessageLog(constants['MESSAGE_X'], constants['MESSAGE_WIDTH'], constants['MESSAGE_HEIGHT'])
 

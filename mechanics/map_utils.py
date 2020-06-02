@@ -1,6 +1,7 @@
-__all__ = ["GameMap","Rect","create_room","create_h_tunnel","create_v_tunnel",
-"make_map","next_floor","place_entities"]
+__all__ = ["GameMap","Rect", "make_bsp", "next_floor","place_entities"]
 
+import tcod
+import random
 import mechanics.colors as colors
 from tdl.map import Map
 from random import randint
@@ -41,95 +42,60 @@ class Rect:
         return (self.x1 <= other.x2 and self.x2 >= other.x1 and
                 self.y1 <= other.y2 and self.y2 >= other.y1)
 
-def create_room(game_map, room):
-    for x in range(room.x1 + 1, room.x2):
-        for y in range(room.y1 + 1, room.y2):
-            game_map.walkable[x, y] = True
-            game_map.transparent[x, y] = True
+def make_bsp(game_map, player, entities):
+    room_list = []
 
-def create_h_tunnel(game_map, x1, x2, y):
-    for x in range(min(x1, x2), max(x1, x2) + 1):
-        game_map.walkable[x, y] = True
-        game_map.transparent[x, y] = True
+    # Mappers
+    bsp = tcod.bsp.BSP(0, 0, game_map.width - 1, game_map.height - 1)
+    bsp.split_recursive(5, 8, 8, 1.0, 1.0)
 
-def create_v_tunnel(game_map, y1, y2, x):
-    for y in range(min(y1, y2), max(y1, y2) + 1):
-        game_map.walkable[x, y] = True
-        game_map.transparent[x, y] = True
+    for node in bsp.inverted_level_order():
+        if not node.children:
+            for x in range(node.x, (node.x + node.width + 1)):
+                for y in range(node.y, (node.y + node.height + 1)):
+                    if (x == node.x or x == node.x + node.width) or (y == node.y or y == node.y + node.height):
+                        game_map.walkable[x, y] = False
+                        game_map.transparent[x, y] = False
+                    else:
+                        game_map.walkable[x, y] = True
+                        game_map.transparent[x, y] = True
 
-def make_map(game_map, MAX_ROOMS, ROOM_MIN_SIZE, ROOM_MAX_SIZE,
-MAP_WIDTH, MAP_HEIGHT, player, entities):
+            last_room_x = random.randint(node.x + 1, node.x + node.width - 1)
+            last_room_y = random.randint(node.y + 1, node.y + node.height - 1)
 
-    rooms = []
-    num_rooms = 0
-
-    center_of_last_room_x = None
-    center_of_last_room_y = None
-
-    for r in range(MAX_ROOMS):
-        #Largura e altura aleatorias
-        w = randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-        h = randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
-        #Posicao aleatoria dentro do limite do mapa
-        x = randint(0, MAP_WIDTH - w - 1)
-        y = randint(0, MAP_HEIGHT - h - 1)
-
-        #A classe "Rect" torna mais facil trabalhar com retangulos
-        new_room = Rect(x, y, w, h)
-
-        #Percorrer as outras salas e checar se elas se interceptam com essa
-        for other_room in rooms:
-            if new_room.intersect(other_room):
-                break
         else:
-            #Isso significa que a sala é valida
-            #"Pintar" sala no mapa
-            create_room(game_map, new_room)
-
-            #coordenadas centrais da sala
-            (new_x, new_y) = new_room.center()
-
-            center_of_last_room_x = new_x
-            center_of_last_room_y = new_y
-
-            if num_rooms == 0:
-                #essa é a primeira sala, onde o player spawna
-                player.x = new_x
-                player.y = new_y
-            else:
-                #todas as outras salas
-                #conectadas por tuneis
-
-                #coordenadas centrais da sala anterior
-                (prev_x, prev_y) = rooms[num_rooms - 1].center()
-
-                #gerar um numero aleatorio (0, 1)
-                if randint(0, 1) == 1:
-                    #primeiro criar o tunel horizontal e depois o vertical
-                    create_h_tunnel(game_map, prev_x, new_x, prev_y)
-                    create_v_tunnel(game_map, prev_y, new_y, new_x)
+            valid = False
+            while (valid == False):
+                if (node.horizontal):
+                    door_x = random.randint((node.x + 1), (node.x + node.width - 1))
+                    door_y = node.position
                 else:
-                    #fazer o contrario
-                    create_v_tunnel(game_map, prev_y, new_y, prev_x)
-                    create_h_tunnel(game_map, prev_x, new_x, new_y)
+                    door_x = node.position
+                    door_y = random.randint((node.y + 1), (node.y + node.height - 1))
 
-            place_entities(new_room, entities, game_map.dungeon_level)
+                if ((game_map.walkable[door_x + 1, door_y] and game_map.walkable[door_x - 1, door_y]) or (game_map.walkable[door_x, door_y + 1] and game_map.walkable[door_x, door_y - 1])):
+                    valid = True
+                    game_map.walkable[door_x, door_y] = True
+                    game_map.transparent[door_x, door_y] = True
+        
+        if (len(room_list) == 0):
+            player.x = random.randint(node.x + 1, node.x + node.width - 1)
+            player.y = random.randint(node.y + 1, node.y + node.height - 1)
+        
+        room = Rect(node.x, node.y, node.width, node.height)
+        place_entities(room, entities, game_map.dungeon_level)
 
-            #finalmente, adicionar a lista de salas
-            rooms.append(new_room)
-            num_rooms += 1
-
+        room_list.append(room)
+    
     stairs_component = Stairs(game_map.dungeon_level + 1)
-    down_stairs = Entity(center_of_last_room_x, center_of_last_room_y, '>', colors.white, 'Escadas', render_order=RenderOrder.STAIRS, stairs=stairs_component)
+    down_stairs = Entity(last_room_x, last_room_y, '>', (255, 255, 255), 'Escadas', render_order=RenderOrder.STAIRS, stairs=stairs_component)
     entities.append(down_stairs)
 
 def next_floor(player, message_log, dungeon_level, constants):
     game_map = GameMap(constants['MAP_WIDTH'], constants['MAP_HEIGHT'], dungeon_level)
     entities = [player]
 
-    make_map(game_map, constants['MAX_ROOMS'], constants['ROOM_MIN_SIZE'],
-             constants['ROOM_MAX_SIZE'], constants['MAP_WIDTH'],
-             constants['MAP_HEIGHT'], player, entities)
+    make_bsp(game_map, player, entities)
 
     player.fighter.heal(player.fighter.max_hp // 2)
 
