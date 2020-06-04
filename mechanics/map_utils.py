@@ -1,22 +1,21 @@
-__all__ = ["GameMap","Rect", "make_bsp", "next_floor","place_entities"]
-
 import tcod
 import random
-import mechanics.colors as colors
+from mechanics import colors
 from tdl.map import Map
 from random import randint
-from components.item import *
-from components.fighter import *
-from components.ai import *
-from components.inventory import *
-from components.stairs import *
-from components.equipment import *
-from components.equippable import *
-from mechanics.entity import *
-from mechanics.item_functions import *
-from mechanics.render_functions import *
-from mechanics.game_messages import *
-from mechanics.random_utils import *
+from components.item import Item
+from components.fighter import Fighter
+from components.ai import BasicMonster, Apprentice
+from components.inventory import Inventory
+from components.stairs import Stairs
+from components.equipment import EquipmentSlots
+from components.equippable import Equippable
+from mechanics.entity import Entity
+from mechanics.item_functions import heal, cast_fireball, cast_lightning
+from mechanics.special_item_functions import cast_confuse
+from mechanics.render_functions import RenderOrder
+from mechanics.game_messages import Message
+from mechanics.random_utils import from_dungeon_level, random_choice_from_dict
 
 class GameMap(Map):
     def __init__(self, width, height, dungeon_level=1):
@@ -51,8 +50,8 @@ def make_bsp(game_map, player, entities):
 
     for node in bsp.inverted_level_order():
         if not node.children:
-            for x in range(node.x, (node.x + node.width + 1)):
-                for y in range(node.y, (node.y + node.height + 1)):
+            for x in range(node.x, (node.x + node.width)):
+                for y in range(node.y, (node.y + node.height)):
                     if (x == node.x or x == node.x + node.width) or (y == node.y or y == node.y + node.height):
                         game_map.walkable[x, y] = False
                         game_map.transparent[x, y] = False
@@ -132,8 +131,8 @@ def place_entities(room, entities, dungeon_level):
 
     for i in range(number_of_monsters):
         #Escolhe uma localizacao aleatoria na sala
-        x = randint(room.x1 + 1, room.x2 - 1)
-        y = randint(room.y1 + 1, room.y2 - 1)
+        x = randint(room.x1 + 2, room.x2 - 2)
+        y = randint(room.y1 + 2, room.y2 - 2)
 
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
             monster_choice = random_choice_from_dict(monster_chances)
@@ -160,8 +159,8 @@ def place_entities(room, entities, dungeon_level):
             entities.append(monster)
 
     for i in range(number_of_items):
-        x = randint(room.x1 + 1, room.x2 - 1)
-        y = randint(room.y1 + 1, room.y2 - 1)
+        x = randint(room.x1 + 2, room.x2 - 2)
+        y = randint(room.y1 + 2, room.y2 - 2)
 
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
             item_choice = random_choice_from_dict(item_chances)

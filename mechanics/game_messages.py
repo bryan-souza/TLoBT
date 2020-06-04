@@ -1,5 +1,3 @@
-__all__ = ["Message","MessageLog"]
-
 import textwrap
 import mechanics.colors as colors
 

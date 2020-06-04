@@ -4,14 +4,15 @@ import mechanics.colors as colors
 from tcod import image_load
 from loader_functions.initialize_new_game import get_constants, get_game_variables
 from loader_functions.data_loaders import load_game, save_game
-from mechanics.menus import *
-from mechanics.input_handlers import *
-from mechanics.game_states import *
-from mechanics.render_functions import *
-from mechanics.entity import *
-from mechanics.game_messages import *
-from mechanics.death_functions import *
-from mechanics.map_utils import *
+from mechanics.menus import main_menu, messsage_box
+from mechanics.game_states import GameStates
+from mechanics.render_functions import render_all, clear_all
+from mechanics.entity import Entity
+from mechanics.input_handlers import handle_main_menu, handle_keys, handle_mouse
+from mechanics.game_messages import Message
+from mechanics.death_functions import kill_monster, kill_player
+from mechanics.entity import get_blocking_entities_at_location
+from mechanics.map_utils import next_floor
 
 def main():
     constants = get_constants()

@@ -1,9 +1,7 @@
-__all__ = ["kill_player","kill_monster"]
-
 import mechanics.colors as colors
-from mechanics.game_states import *
-from mechanics.render_functions import *
-from mechanics.game_messages import *
+from mechanics.game_states import GameStates
+from mechanics.render_functions import RenderOrder
+from mechanics.game_messages import Message
 
 def kill_player(player):
     player.char = '%'

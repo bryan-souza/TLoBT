@@ -1,5 +1,3 @@
-__all__= ["menu", "inventory_menu", "main_menu", "messsage_box", "level_up_menu", "character_screen"]
-
 import tdl
 import textwrap
 import mechanics.colors as colors
@@ -33,6 +31,34 @@ def menu(con, root, header, options, width, SCREEN_WIDTH, SCREEN_HEIGHT):
     y = SCREEN_HEIGHT // 2 - height // 2
     root.blit(window, x, y, width, height, 0, 0)
 
+def stack_items(inv):
+    """
+    Input = [a, b, c, a, a, a]
+    Output = [{"name": a, "quantity": 4}, b, c]
+    """
+    stack = []
+    item_stack = []
+    # Stackar itens stackaveis
+    for x in range(len(inv)):
+        item_counter = 1
+        if not (inv[x].equippable): 
+            for y in range(len(inv)):
+                if (inv[x].name == inv[y].name) and (x != y) and (stack.count(inv[x].name) == 0):
+                    item_counter += 1
+
+            stack.append(inv[x].name)
+            item = {'name': inv[x].name, 'quantity': item_counter}
+
+            if (len(item_stack) == 0):
+                item_stack.append(item)
+            else:
+                valid = True
+                for it in item_stack:
+                    if (it['name'] == item['name']):
+                        valid = False
+                if (valid == True):
+                    item_stack.append(item)
+
 def inventory_menu(con, root, header, player, inventory_width, SCREEN_WIDTH, SCREEN_HEIGHT):
     #Mostrar um menu com cada item do inventario como uma opcao
     if len(player.inventory.items) == 0:
@@ -40,11 +66,25 @@ def inventory_menu(con, root, header, player, inventory_width, SCREEN_WIDTH, SCR
     else:
         options = []
 
+        # Item Stack
+        stack_items(player.inventory.items)
+
+        # Indicar se o item esta equipado ou nao
         for item in player.inventory.items:
             if player.equipment.main_hand == item:
                 options.append('{0} (na mao direita)'.format(item.name))
             elif player.equipment.off_hand == item:
                 options.append('{0} (na mao esquerda)'.format(item.name))
+            elif player.equipment.dual_wield == item:
+                options.append('{0} (nas duas maos)'.format(item.name))
+            elif player.equipment.head == item:
+                options.append('{0} (na cabeca)'.format(item.name))
+            elif player.equipment.peitoral == item:
+                options.append('{0} (no tronco)'.format(item.name))
+            elif player.equipment.calca == item:
+                options.append('{0} (nas pernas)'.format(item.name))
+            elif player.equipment.bota == item:
+                options.append('{0} (nos pes)'.format(item.name))
             else:
                 options.append(item.name)
 

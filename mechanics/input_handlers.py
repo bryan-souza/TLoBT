@@ -1,7 +1,4 @@
-__all__ = ["handle_keys","handle_mouse","handle_inventory_keys","handle_main_menu","handle_player_turn_keys",
-"handle_player_dead_keys","handle_targeting_keys", "handle_level_up_menu", "handle_character_screen"]
-
-from mechanics.game_states import *
+from mechanics.game_states import GameStates
 
 def handle_keys(user_input, game_state):
     if user_input:

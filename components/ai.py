@@ -1,10 +1,11 @@
 from random import randint
-from mechanics.entity import *
-from mechanics.item_functions import *
-from mechanics.game_messages import *
-from mechanics.render_functions import *
-from components.item import *
-from components.inventory import *
+from mechanics.entity import Entity
+from mechanics.render_functions import RenderOrder
+from mechanics import colors
+from mechanics.item_functions import cast_lightning, cast_fireball
+from mechanics.game_messages import Message
+from components.item import Item
+from components.inventory import Inventory
 
 class BasicMonster:
     def take_turn(self, target, game_map, entities):

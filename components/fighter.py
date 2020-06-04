@@ -1,6 +1,6 @@
 from random import randint
 import mechanics.colors as colors
-from mechanics.game_messages import *
+from mechanics.game_messages import Message
 
 class Fighter:
     def __init__(self, hp, defense, power, xp=0):

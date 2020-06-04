@@ -1,5 +1,5 @@
 import mechanics.colors as colors
-from mechanics.game_messages import *
+from mechanics.game_messages import Message
 
 class Inventory:
     def __init__(self, capacity):

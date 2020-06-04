@@ -168,7 +168,6 @@ class Equipment(object):
                 self.head = equippable_entity
                 results.append({'equipped': equippable_entity})
 
-
         elif slot == EquipmentSlots.CALCA:
             if self.calca == equippable_entity:
                 self.calca = None
@@ -191,7 +190,6 @@ class Equipment(object):
                 self.peitoral = equippable_entity
                 results.append({'equipped': equippable_entity})
 
-
         elif slot == EquipmentSlots.BOTA:
             if self.bota == equippable_entity:
                 self.bota = None
@@ -202,8 +200,5 @@ class Equipment(object):
 
                 self.bota = equippable_entity
                 results.append({'equipped': equippable_entity})
-
-
-
 
         return results
