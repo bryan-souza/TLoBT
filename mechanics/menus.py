@@ -5,7 +5,7 @@ import mechanics.colors as colors
 def menu(con, root, header, options, width, SCREEN_WIDTH, SCREEN_HEIGHT):
     if len(options) > 26: raise ValueError('Nao se pode haver um menu com mais de 26 opcoes')
 
-    #Calcular a altura total para o cabecalh
+    #Calcular a altura total para o cabecalho
     header_wrapped = textwrap.wrap(header, width)
     header_height = len(header_wrapped)
     height = len(options) + header_height

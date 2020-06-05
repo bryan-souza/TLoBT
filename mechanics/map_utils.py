@@ -31,16 +31,6 @@ class Rect:
         self.x2 = x + w
         self.y2 = y + h
 
-    def center(self):
-        center_X = int((self.x1 + self.x2) / 2)
-        center_y = int((self.y1 + self.y2) / 2)
-        return (center_X, center_y)
-
-    def intersect(self, other):
-        #Retorna 'True' caso uma sala se interceccionar com outra
-        return (self.x1 <= other.x2 and self.x2 >= other.x1 and
-                self.y1 <= other.y2 and self.y2 >= other.y1)
-
 def make_bsp(game_map, player, entities):
     room_list = []
 
@@ -50,6 +40,7 @@ def make_bsp(game_map, player, entities):
 
     for node in bsp.inverted_level_order():
         if not node.children:
+            # Construir sala
             for x in range(node.x, (node.x + node.width)):
                 for y in range(node.y, (node.y + node.height)):
                     if (x == node.x or x == node.x + node.width) or (y == node.y or y == node.y + node.height):
@@ -61,6 +52,10 @@ def make_bsp(game_map, player, entities):
 
             last_room_x = random.randint(node.x + 1, node.x + node.width - 1)
             last_room_y = random.randint(node.y + 1, node.y + node.height - 1)
+            
+            room = Rect(node.x, node.y, node.width, node.height)
+            place_entities(room, entities, game_map.dungeon_level)
+            room_list.append(room)
 
         else:
             valid = False
@@ -81,10 +76,6 @@ def make_bsp(game_map, player, entities):
             player.x = random.randint(node.x + 1, node.x + node.width - 1)
             player.y = random.randint(node.y + 1, node.y + node.height - 1)
         
-        room = Rect(node.x, node.y, node.width, node.height)
-        place_entities(room, entities, game_map.dungeon_level)
-
-        room_list.append(room)
     
     stairs_component = Stairs(game_map.dungeon_level + 1)
     down_stairs = Entity(last_room_x, last_room_y, '>', (255, 255, 255), 'Escadas', render_order=RenderOrder.STAIRS, stairs=stairs_component)
@@ -131,8 +122,8 @@ def place_entities(room, entities, dungeon_level):
 
     for i in range(number_of_monsters):
         #Escolhe uma localizacao aleatoria na sala
-        x = randint(room.x1 + 2, room.x2 - 2)
-        y = randint(room.y1 + 2, room.y2 - 2)
+        x = randint(room.x1 + 1, room.x2 - 1)
+        y = randint(room.y1 + 1, room.y2 - 1)
 
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
             monster_choice = random_choice_from_dict(monster_chances)
@@ -159,8 +150,8 @@ def place_entities(room, entities, dungeon_level):
             entities.append(monster)
 
     for i in range(number_of_items):
-        x = randint(room.x1 + 2, room.x2 - 2)
-        y = randint(room.y1 + 2, room.y2 - 2)
+        x = randint(room.x1 + 1, room.x2 - 1)
+        y = randint(room.y1 + 1, room.y2 - 1)
 
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
             item_choice = random_choice_from_dict(item_chances)

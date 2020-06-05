@@ -1,15 +1,17 @@
-import mechanics.colors as colors
-from components.fighter import *
-from components.inventory import *
-from components.level import *
-from components.equipment import *
-from components.equippable import *
-from mechanics.equipment_slots import *
-from mechanics.entity import *
-from mechanics.render_functions import *
-from mechanics.map_utils import *
-from mechanics.game_messages import *
-from mechanics.game_states import *
+# Components
+from components.fighter import Fighter
+from components.inventory import Inventory
+from components.equipment import Equipment, EquipmentSlots
+from components.equippable import Equippable
+from components.level import Level
+
+# Mechanics
+from mechanics import colors
+from mechanics.entity import Entity
+from mechanics.render_functions import RenderOrder
+from mechanics.map_utils import GameMap, make_bsp
+from mechanics.game_messages import MessageLog
+from mechanics.game_states import GameStates
 
 def get_constants():
     WINDOW_TITLE = 'TLoBT'
