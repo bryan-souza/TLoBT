@@ -14,13 +14,15 @@ from mechanics.death_functions import kill_monster, kill_player
 from mechanics.entity import get_blocking_entities_at_location
 from mechanics.map_utils import next_floor
 
+
 def main():
     constants = get_constants()
 
     sys.path.append("..")
     tdl.set_font('images/arial10x10.png', greyscale=True, altLayout=True)
 
-    root_console = tdl.init(constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'], constants['WINDOW_TITLE'])
+    root_console = tdl.init(
+        constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'], constants['WINDOW_TITLE'])
     con = tdl.Console(constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'])
     panel = tdl.Console(constants['SCREEN_WIDTH'], constants['PANEL_HEIGHT'])
 
@@ -44,9 +46,11 @@ def main():
             user_input = None
 
         if show_main_menu:
-            main_menu(con, root_console, main_menu_background_image, constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'])
+            main_menu(con, root_console, main_menu_background_image,
+                      constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'])
             if show_load_error_message:
-                messsage_box(con, root_console, 'Jogo salvo nao encontrado!', 50, constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'])
+                messsage_box(con, root_console, 'Jogo salvo nao encontrado!',
+                             50, constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'])
             tdl.flush()
 
             action = handle_main_menu(user_input)
@@ -58,7 +62,8 @@ def main():
             if show_load_error_message and (new_game or load_saved_game or exit_game):
                 show_load_error_message = False
             elif new_game:
-                player, entities, game_map, message_log, game_state = get_game_variables(constants)
+                player, entities, game_map, message_log, game_state = get_game_variables(
+                    constants)
                 game_state = GameStates.PLAYERS_TURN
 
                 show_main_menu = False
@@ -75,9 +80,11 @@ def main():
             root_console.clear()
             con.clear()
             panel.clear()
-            play_game(player, entities, game_map, message_log, game_state, root_console, con, panel, constants)
+            play_game(player, entities, game_map, message_log,
+                      game_state, root_console, con, panel, constants)
 
             show_main_menu = True
+
 
 def play_game(player, entities, game_map, message_log, game_state, root_console, con, panel, constants):
     sys.path.append("..")
@@ -93,9 +100,11 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
 
     while not tdl.event.is_window_closed():
         if fov_recompute:
-            game_map.compute_fov(player.x, player.y, fov=constants['FOV_ALGORITHM'], radius=constants['FOV_RADIUS'], light_walls=constants['FOV_LIGHT_WALLS'])
+            game_map.compute_fov(player.x, player.y, fov=constants['FOV_ALGORITHM'],
+                                 radius=constants['FOV_RADIUS'], light_walls=constants['FOV_LIGHT_WALLS'])
 
-        render_all(con, panel, entities, player, game_map, fov_recompute, root_console, message_log, constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'], constants['BAR_WIDTH'], constants['PANEL_HEIGHT'], constants['PANEL_Y'], mouse_coordinates, constants['Colors'], game_state)
+        render_all(con, panel, entities, player, game_map, fov_recompute, root_console, message_log,
+                   constants['SCREEN_WIDTH'], constants['SCREEN_HEIGHT'], constants['BAR_WIDTH'], constants['PANEL_HEIGHT'], constants['PANEL_Y'], mouse_coordinates, constants['Colors'], game_state)
         tdl.flush()
 
         clear_all(con, entities)
@@ -143,18 +152,17 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
             destination_y = player.y + dy
 
             if game_map.walkable[destination_x, destination_y]:
-                target = get_blocking_entities_at_location(entities, destination_x, destination_y)
+                target = get_blocking_entities_at_location(
+                    entities, destination_x, destination_y)
 
                 if target:
                     attack_results = player.fighter.attack(target)
                     player_turn_results.extend(attack_results)
                 else:
-
                     player.move(dx, dy)
-
                     fov_recompute = True
 
-                game_state = GameStates.ENEMY_TURN
+            game_state = GameStates.ENEMY_TURN
 
         elif pickup and game_state == GameStates.PLAYERS_TURN:
             for entity in entities:
@@ -165,7 +173,8 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
                     break
 
             else:
-                message_log.add_message(Message('Nao ha nada aqui para ser pegado', colors.yellow))
+                message_log.add_message(
+                    Message('Nao ha nada aqui para ser pegado', colors.yellow))
 
         if show_inventory:
             previous_game_state = game_state
@@ -179,20 +188,23 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
             item = player.inventory.items[inventory_index]
 
             if game_state == GameStates.SHOW_INVENTORY:
-                player_turn_results.extend(player.inventory.use(item, entities=entities, game_map=game_map))
+                player_turn_results.extend(player.inventory.use(
+                    item, entities=entities, game_map=game_map))
             elif game_state == GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
 
         if take_stairs and game_state == GameStates.PLAYERS_TURN:
             for entity in entities:
                 if entity.stairs and entity.x == player.x and entity.y == player.y:
-                    game_map, entities = next_floor(player, message_log, entity.stairs.floor, constants)
+                    game_map, entities = next_floor(
+                        player, message_log, entity.stairs.floor, constants)
                     fov_recompute = True
                     con.clear()
 
                     break
             else:
-                message_log.add_message(Message('Não há uma escadaria aqui.', colors.yellow))
+                message_log.add_message(
+                    Message('Não há uma escadaria aqui.', colors.yellow))
 
         if level_up:
             if level_up == 'hp':
@@ -213,7 +225,8 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
             if left_click:
                 target_x, target_y = left_click
 
-                item_use_results = player.inventory.use(targeting_item, entities=entities, game_map=game_map, target_x=target_x, target_y=target_y)
+                item_use_results = player.inventory.use(
+                    targeting_item, entities=entities, game_map=game_map, target_x=target_x, target_y=target_y)
                 player_turn_results.extend(item_use_results)
             elif right_click:
                 player_turn_results.append({'targeting_cancelled': True})
@@ -273,10 +286,12 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
                     dequipped = equip_result.get('dequipped')
 
                     if equipped:
-                        message_log.add_message(Message('Voce equipou o(a) {0}'.format(equipped.name)))
+                        message_log.add_message(
+                            Message('Voce equipou o(a) {0}'.format(equipped.name)))
 
                     if dequipped:
-                        message_log.add_message(Message('Voce desequipou o(a) {0}'.format(dequipped.name)))
+                        message_log.add_message(
+                            Message('Voce desequipou o(a) {0}'.format(dequipped.name)))
 
                 game_state = GameStates.ENEMY_TURN
 
@@ -295,11 +310,13 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
 
             if xp:
                 leveled_up = player.level.add_xp(xp)
-                message_log.add_message(Message('Você ganhou {0} pontos de experiencia.'.format(xp)))
+                message_log.add_message(
+                    Message('Você ganhou {0} pontos de experiencia.'.format(xp)))
 
                 if leveled_up:
                     message_log.add_message(Message(
-                        'Suas habilidades de batalha melhoraram! Você atingiu o nível {0}'.format(player.level.current_level) + '!',
+                        'Suas habilidades de batalha melhoraram! Você atingiu o nível {0}'.format(
+                            player.level.current_level) + '!',
                         colors.yellow))
                     previous_game_state = game_state
                     game_state = GameStates.LEVEL_UP
@@ -307,7 +324,8 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
         if game_state == GameStates.ENEMY_TURN:
             for entity in entities:
                 if entity.ai:
-                    enemy_turn_results = entity.ai.take_turn(player, game_map, entities)
+                    enemy_turn_results = entity.ai.take_turn(
+                        player, game_map, entities)
 
                     for enemy_turn_result in enemy_turn_results:
                         message = enemy_turn_result.get('message')
@@ -329,6 +347,7 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
 
             else:
                 game_state = GameStates.PLAYERS_TURN
+
 
 if __name__ == '__main__':
     main()
