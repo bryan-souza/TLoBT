@@ -151,6 +151,7 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
             destination_x = player.x + dx
             destination_y = player.y + dy
 
+            # NOCLIP AQUI
             if game_map.walkable[destination_x, destination_y]:
                 target = get_blocking_entities_at_location(
                     entities, destination_x, destination_y)
@@ -166,12 +167,10 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
 
         elif pickup and game_state == GameStates.PLAYERS_TURN:
             for entity in entities:
-                if entity.item and entity.x == player.x and entity.y == player.y:
+                if (entity.item) and (entity.x == player.x and entity.y == player.y):
                     pickup_results = player.inventory.add_item(entity)
                     player_turn_results.extend(pickup_results)
-
                     break
-
             else:
                 message_log.add_message(
                     Message('Nao ha nada aqui para ser pegado', colors.yellow))
@@ -200,11 +199,10 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
                         player, message_log, entity.stairs.floor, constants)
                     fov_recompute = True
                     con.clear()
-
                     break
             else:
                 message_log.add_message(
-                    Message('Não há uma escadaria aqui.', colors.yellow))
+                    Message('Nao ha uma escadaria aqui.', colors.yellow))
 
         if level_up:
             if level_up == 'hp':
@@ -311,11 +309,11 @@ def play_game(player, entities, game_map, message_log, game_state, root_console,
             if xp:
                 leveled_up = player.level.add_xp(xp)
                 message_log.add_message(
-                    Message('Você ganhou {0} pontos de experiencia.'.format(xp)))
+                    Message('Voce ganhou {0} pontos de experiencia.'.format(xp)))
 
                 if leveled_up:
                     message_log.add_message(Message(
-                        'Suas habilidades de batalha melhoraram! Você atingiu o nível {0}'.format(
+                        'Suas habilidades de batalha melhoraram! Voce atingiu o nivel {0}'.format(
                             player.level.current_level) + '!',
                         colors.yellow))
                     previous_game_state = game_state

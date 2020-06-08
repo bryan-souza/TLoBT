@@ -1,6 +1,7 @@
 import mechanics.colors as colors
 from mechanics.game_messages import Message
 
+
 class Inventory:
     def __init__(self, capacity):
         self.capacity = capacity
@@ -20,7 +21,13 @@ class Inventory:
                 'message': Message('Voce pegou o {0}!'.format(item.name), colors.blue)
             })
 
-            self.items.append(item)
+            for it in self.items:
+                # Item ja existente, apenas itens de uso unico sao stackaveis
+                if (it.name == item.name) and not (it.equippable):
+                    it.item.quantity += 1
+                    break
+            else:  # Item novo
+                self.items.append(item)
 
         return results
 
@@ -35,17 +42,24 @@ class Inventory:
             if equippable_component:
                 results.append({'equip': item_entity})
             else:
-                results.append({'message': Message('O {0} nao pode ser usado.'.format(item_entity.name), colors.yellow)})
+                results.append({'message': Message(
+                    'O {0} nao pode ser usado.'.format(item_entity.name), colors.yellow)})
         else:
             if item_component.targeting and not (kwargs.get('target_x') or kwargs.get('target_y')):
                 results.append({'targeting': item_entity})
             else:
                 kwargs = {**item_component.function_kwargs, **kwargs}
-                item_use_results = item_component.use_function(self.owner, **kwargs)
+                item_use_results = item_component.use_function(
+                    self.owner, **kwargs)
 
                 for item_use_result in item_use_results:
                     if item_use_result.get('consumed'):
-                        self.remove_item(item_entity)
+                        for item in self.items:
+                            if (item.item.quantity > 1):  # Item stackado, remover um
+                                item.item.quantity -= 1
+                                break
+                        else:  # Item sozinho, excluir
+                            self.remove_item(item_entity)
 
                 results.extend(item_use_results)
 
@@ -64,7 +78,7 @@ class Inventory:
         item.y = self.owner.y
 
         self.remove_item(item)
-        results.append({'item_dropped': item, 'message': Message('Voce largou o {0}'.format(item.name), colors.yellow)})
-
+        results.append({'item_dropped': item, 'message': Message(
+            'Voce largou o {0}'.format(item.name), colors.yellow)})
 
         return results
