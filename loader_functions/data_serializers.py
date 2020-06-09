@@ -5,6 +5,12 @@ sys.path.append('.')
 from mechanics import colors
 from mechanics.render_functions import RenderOrder
 from mechanics.entity import Entity
+from mechanics.map_utils import GameMap
+from mechanics.game_states import GameStates
+from mechanics.game_messages import MessageLog, Message
+
+from loader_functions.initialize_new_game import get_game_variables, get_constants
+player, entities, game_map, message_log, game_state = get_game_variables(get_constants())
 
 from components.ai import BasicMonster, ConfusedMonster, Apprentice
 from components.equipment import Equipment, EquipmentSlots
@@ -14,25 +20,6 @@ from components.inventory import Inventory
 from components.fighter import Fighter
 from components.item import Item
 from components.stairs import Stairs
-
-
-fighter_component = Fighter(hp=100, defense=1, power=2)
-inventory_component = Inventory(26)
-level_component = Level()
-equipment_component = Equipment()
-player = Entity(0, 0, '@', colors.white, 'Player',
-                blocks=True, render_order=RenderOrder.ACTOR,
-                fighter=fighter_component, inventory=inventory_component,
-                level=level_component, equipment=equipment_component)
-
-entities = [player]
-
-equippable_component = Equippable(EquipmentSlots.MAIN_HAND, power_bonus=2)
-adaga = Entity(0, 0, '-', colors.sky, 'Adaga Simples',
-                equippable=equippable_component)
-player.inventory.add_item(adaga)
-player.equipment.toggle_equip(adaga)
-
 
 def serializeEntity(entity:Entity, mode='python'):
     if not (entity == None):
@@ -157,7 +144,7 @@ def serializeEquippable(equippable:Equippable, mode='python'):
 def serializeItem(item:Item, mode='python'):
     if not (item == None):
         base_dict = {
-            'use_function': item.use_function,
+            'use_function': str(item.use_function),
             'quantity': item.quantity,
             'targeting': item.targeting,
             'targeting_message': item.targeting_message,
@@ -210,6 +197,7 @@ def serializeAi(ai, mode='python'):
 
 def serializeRenderOrder(render_order:RenderOrder, mode='python'):
     base_dict = {
+        'name': render_order.name,
         'value': render_order.value
     }
 
@@ -220,6 +208,7 @@ def serializeRenderOrder(render_order:RenderOrder, mode='python'):
 
 def serializeEquipmentSlots(equipment_slot:EquipmentSlots, mode='python'):
     base_dict = {
+        'name': equipment_slot.name,
         'value': equipment_slot.value
     }
     
@@ -228,3 +217,68 @@ def serializeEquipmentSlots(equipment_slot:EquipmentSlots, mode='python'):
     else:
         return base_dict
 
+def serializeGameMap(game_map:GameMap, mode='python'):
+    if not (game_map == None):
+        base_dict = {
+            'width': game_map.width,
+            'height': game_map.height,
+            'dungeon_level': game_map.dungeon_level,
+            'explored': game_map.explored,
+            'transparent': game_map.transparent.tolist(),
+            'walkable': game_map.walkable.tolist()
+        }
+
+        if (mode == 'json'):
+            return json.dumps(base_dict, indent=4)
+        else:
+            return base_dict
+    else:
+        return None
+
+def serializeMessage(message:Message, mode='python'):
+    if not (message == None):
+        base_dict = {
+            'text': message.text,
+            'color': message.color
+        }
+
+        if (mode == 'json'):
+            return json.dumps(base_dict, indent=4)
+        else:
+            return base_dict
+    else:
+        return None
+
+def serializeMessageLog(message_log:MessageLog, mode='python'):
+    if not (message_log == None):
+        messages = []
+        for message in message_log.messages:
+            messages.append(serializeMessage(message))
+
+        base_dict = {
+            'messages': messages,
+            'x': message_log.x,
+            'width': message_log.width,
+            'height': message_log.height,
+        }
+
+        if (mode == 'json'):
+            return json.dumps(base_dict, indent=4)
+        else:
+            return base_dict
+    else:
+        return None
+
+def serializeGameState(game_state:GameStates, mode='python'):
+    if not (game_state == None):
+        base_dict = {
+            'name': game_state.name,
+            'value': game_state.value
+        }
+
+        if (mode == 'json'):
+            return json.dumps(base_dict, indent=4)
+        else:
+            return base_dict
+    else:
+        return None
