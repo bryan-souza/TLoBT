@@ -1,7 +1,7 @@
 import shelve
 import json
 import os
-from loader_functions.data_serializers import serializeEntity, serializeGameMap, serializeMessageLog, serializeGameState
+from loader_functions.data_serializers import serialize
 from mechanics.map_utils import GameMap
 
 
@@ -9,14 +9,14 @@ def save_game(player, entities, game_map, message_log, game_state):
     with open('savegame.json', 'w') as savegame:
         entity_list = []
         for entity in entities:
-            entity_list.append(serializeEntity(entity))
+            entity_list.append(serialize(entity))
         
         json.dump({
             'player_index': entities.index(player),
             'entities': entity_list,
-            'game_map': serializeGameMap(game_map),
-            'message_log': serializeMessageLog(message_log),
-            'game_state': serializeGameState(game_state)
+            'game_map': serialize(game_map),
+            'message_log': serialize(message_log),
+            'game_state': serialize(game_state)
             }, savegame, indent=4)
             
         # data_file['player_index'] = entities.index(player)
