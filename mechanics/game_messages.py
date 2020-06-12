@@ -7,8 +7,11 @@ class Message:
         self.color = color
 
 class MessageLog:
-    def __init__(self, x, width, height):
-        self.messages = []
+    def __init__(self, x, width, height, messages = None):
+        if (messages == None):
+            self.messages = []
+        else:
+            self.messages = messages
         self.x = x
         self.width = width
         self.height = height

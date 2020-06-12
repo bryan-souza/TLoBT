@@ -1,7 +1,7 @@
 from mechanics.equipment_slots import EquipmentSlots
 
 
-class Equipment(object):
+class Equipment():
     """Um equipamento e suas propriedades"""
     def __init__(self, bota=None, calca=None, peitoral=None, head=None, main_hand=None, off_hand=None, dual_wield=None):
         self.main_hand = main_hand
