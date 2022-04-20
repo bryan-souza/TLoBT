@@ -1,7 +1,7 @@
 import tcod
 import random
 from mechanics import colors
-from tdl.map import Map
+from tcod.map import Map
 from random import randint
 from components.item import Item
 from components.fighter import Fighter
