@@ -3,11 +3,23 @@ import mechanics.colors as colors
 from mechanics.game_messages import Message
 
 class Fighter:
-    def __init__(self, hp, defense, power, xp=0):
-        self.base_max_hp = hp
+    def __init__(self, hp, defense, power, base_max_hp=None, base_defense=None, base_power=None, xp=0):
+        if not (base_max_hp == None):
+            self.base_max_hp = base_max_hp
+        else:
+            self.base_max_hp = hp
+        
+        if not (base_defense == None):
+            self.base_defense = base_defense
+        else:
+            self.base_defense = defense
+
+        if not (base_power == None):
+            self.base_power = base_power
+        else:
+            self.base_power = power
+
         self.hp = hp
-        self.base_defense = defense
-        self.base_power = power
         self.xp = xp
 
     @property

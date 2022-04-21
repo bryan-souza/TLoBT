@@ -1,4 +1,4 @@
-import tdl
+import libtcodpy
 import textwrap
 import mechanics.colors as colors
 
@@ -13,7 +13,7 @@ def menu(con, root, header, options, width, SCREEN_WIDTH, SCREEN_HEIGHT):
     height = len(options) + header_height
 
     # Criar um novo console que representa a janela de menu
-    window = tdl.Console(width, height)
+    window = libtcodpy.Console(width, height)
 
     # Mostrar cabecalho, com texto
     window.draw_rect(0, 0, width, height, None, fg=colors.white, bg=None)
@@ -92,7 +92,7 @@ def level_up_menu(con, root, header, player, menu_width, SCREEN_WIDTH, SCREEN_HE
 
 
 def character_screen(root_console, player, character_screen_width, character_screen_height, SCREEN_WIDTH, SCREEN_HEIGHT):
-    window = tdl.Console(character_screen_width, character_screen_height)
+    window = libtcodpy.Console(character_screen_width, character_screen_height)
 
     window.draw_rect(0, 0, character_screen_width,
                      character_screen_height, None, fg=colors.white, bg=None)

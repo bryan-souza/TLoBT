@@ -3,9 +3,12 @@ from mechanics.game_messages import Message
 
 
 class Inventory:
-    def __init__(self, capacity):
+    def __init__(self, capacity, items=None):
         self.capacity = capacity
-        self.items = []
+        if (items == None):
+            self.items = []
+        else:
+            self.items = items
 
     def add_item(self, item):
         results = []
